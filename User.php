@@ -3,12 +3,12 @@
 
 class User implements MongoDB\BSON\Serializable, MongoDB\BSON\Unserializable
 {
-    private $id;
+    private $_id;
     private $first_name;
     private $last_name;
     private $age;
     private $classe;
-    
+
     public function bsonSerialize()
     {
         return [
@@ -22,7 +22,16 @@ class User implements MongoDB\BSON\Serializable, MongoDB\BSON\Unserializable
     function bsonUnserialize(array $map)
     {
         foreach ($map as $k => $value) {
-            $this->$k = $value;
+            if ($k == "classe") {
+                foreach ($map["classe"] as $classe) {
+                    $c = new Classe();
+                    $c->set_id($classe->_id);
+                    $c->setNom($classe->nom);
+                    $this->classe[] = $c;
+                }
+            } else {
+                $this->$k = $value;
+            }
         }
     }
     /**
@@ -77,11 +86,11 @@ class User implements MongoDB\BSON\Serializable, MongoDB\BSON\Unserializable
         return $this->first_name;
     }
 
-   
+
 
     /**
      * Get the value of classe
-     */ 
+     */
     public function getClasse()
     {
         return $this->classe;
@@ -91,7 +100,7 @@ class User implements MongoDB\BSON\Serializable, MongoDB\BSON\Unserializable
      * Set the value of classe
      *
      * @return  self
-     */ 
+     */
     public function setClasse($classe)
     {
         $this->classe = $classe;
